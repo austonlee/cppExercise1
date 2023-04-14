@@ -1,17 +1,21 @@
 #include<iostream>
 using namespace std;
 
-int f(int n)
+//int f(int n)
+void f(int n)
 {
-    if( n==1 || n==2 )
-    {
-        return 1;
+    long long fib[75];
+
+    fib[1] = 1;
+    fib[2] = 1;
+
+    for (int i = 3; i <= n; i++){
+        fib[i] = fib[i-1] + fib[i-2];
     }
-    if( n >= 3 )
-    {
-        int result = f(n-1) + f(n-2);
-        return result;
+    for (int j = 1; j <= n; j++){
+        cout << fib[j] << " ";
     }
+    cout << endl;
 }
 
 int main()
@@ -19,7 +23,7 @@ int main()
     int n;
     while( cin >> n )
     {
-        cout << f(n) << endl;
+        f(n);
     }
 
     return 0;
