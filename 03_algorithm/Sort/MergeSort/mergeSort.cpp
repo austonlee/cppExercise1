@@ -1,48 +1,140 @@
+/*
+MergeSort(headRef)
+1) If the head is NULL or there is only one element in the Linked List 
+    then return.
+2) Else divide the linked list into two halves.  
+      FrontBackSplit(head, &a, &b);  //a and b are two halves 
+3) Sort the two halves a and b.
+      MergeSort(a);
+      MergeSort(b);
+4) Merge the sorted a and b (using SortedMerge() discussed here) 
+   and update the head pointer using headRef.
+     *headRef = SortedMerge(a, b);
+
+From : https://www.geeksforgeeks.org/merge-sort-for-linked-list/
+*/
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
 
 using namespace std;
 
-int merge(std::vector<int> &v, int start, int middle, int end) {
-    int leftIdx = start;
-    int rightIdx = middle + 1;
-    int vLen = v.size();
-    vector<int> sortedV;
+class Node {
+  public:
+    int data;
+    Node* next;
+};
 
-    for (int i = start; i <= end; i++) {
-        if(leftIdx > middle)
-          sortedV.push_back(v[rightIdx++]);
-        else if(rightIdx > end)
-          sortedV.push_back(v[leftIdx++]);
-        else if(v[leftIdx] <= v[rightIdx])
-          sortedV.push_back(v[leftIdx++]);
-        else
-          sortedV.push_back(v[rightIdx++]);
+/* Split the given list source into front and back halves,
+   and return the two lists using the reference parameters.
+   If the length is odd, the extra node should go in the front list.
+   Use the fast/slow pointer strategy. */
+void FrontBackSplit(Node* source, Node** frontRef, Node** backRef){
+  Node* fast;
+  Node* slow;
+  slow = source;
+  fast = source->next;
+
+  //Advance 'fast' two nodes, and advance 'slow' one node.
+  while(fast != NULL){
+    fast = fast->next;
+    if(fast != NULL){
+      slow = slow->next;
+      fast = fast->next;
     }
-    for (int i = start; i <= end; i++)
-    {
-        v.at(i) = sortedV.at(i - start);
-    }
+  }
+
+  //'slow' is before the midpoint in the list, so split it in at that point.
+  *frontRef = source;
+  *backRef = slow->next;
+  slow->next = NULL;
 }
 
-void mergeSort(std::vector<int> &v, int start, int end) {
-    if (start < end){
-      int middle = (start + end)/2;
-      mergeSort(v, start, middle);
-      mergeSort(v, middle+1, end);
-      merge(v, start, middle, end);
-    }
+Node* SortedMerge(Node* a, Node* b){
+  Node* result = NULL;
+
+  //Base case.
+  if(a == NULL)
+    return b;
+  else if(b == NULL)
+    return a;
+
+  //Pick either a or b, and recur.
+  if(a->data <= b->data){
+    result = a;
+    result->next = SortedMerge(a->next, b);
+  }
+  else{
+    result = b;
+    result->next = SortedMerge(a, b->next);
+  }
+  return result;
+}
+
+//Sort the linked list by changing next pointers (not data)
+void MergeSort(Node ** headRef){
+  Node* head = *headRef;
+  Node* a;
+  Node* b;
+
+  //Base case -- length 0 or 1.
+  if((head == NULL) || (head->next == NULL)){
+    return;
+  }
+
+  //Split head into 'a' and 'b' sublists.
+  FrontBackSplit(head, &a, &b);
+
+  //Recursively sort the sublists.
+  MergeSort(&a);
+  MergeSort(&b);
+
+  //Merge the two sorted lists together.
+  *headRef = SortedMerge(a, b);
+}
+
+
+
+
+
+//Print the given linked list.
+void printList(Node* node){
+  while(node != NULL){
+    cout << node->data << " ";
+    node = node->next;
+  }
+  cout << endl;
+}
+
+//Insert a node for initialization.
+void nodePush(Node ** headRef, int newData){
+  //Allocate a new node and assign the data.
+  Node* newNode = new Node();
+  newNode->data = newData;
+
+  //Link the old list of the new node.
+  newNode->next = *headRef;
+
+  //Move the head to point to the new node.
+  *headRef = newNode;
 }
 
 int main(void) {
-    //vector<int> v{5, 4, 3, 2, 1, 0};
-    //vector<int> v{ 5, 5, 3, 3};
-    vector<int> v{0, 1, 2, 3, 3, 5, 2};
+    Node* a = NULL;
+
+    //Create a list : 2->3->20->5->10->15.
+    nodePush(&a, 15);
+    nodePush(&a, 10);
+    nodePush(&a, 5);
+    nodePush(&a, 20);
+    nodePush(&a, 3);
+    nodePush(&a, 2);
+
+    MergeSort(&a);
+
+    cout << "Sorted Linked List: " << endl;
+    printList(a);
     
-    mergeSort(v, 0, v.size() - 1);
-    for (int i : v) {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl;
+    return 0;
 }
