@@ -5,21 +5,26 @@
 using namespace std;
 
 void MaxHeapify(std::vector<int> &v, int root, int end) {
-  int left = 2 * root;//Left child index.
-  int right = 2 * root + 1;//Right child index
-  int largest = 0;
+  int largest = -1;
+  while(largest != root) {
+    int left = 2 * root;//Left child index.
+    int right = 2 * root + 1;//Right child index
 
-  if(left <= end && v[left] > v[root])
-    largest = left;
-  else
-    largest = root;//root is bigger or no child.
+    if(left <= end && v[left] > v[root])
+      largest = left;
+    else
+      largest = root;//root is bigger or no child.
 
-  if(right <= end && v[right] > v[largest])
-    largest = right;
-  
-  if(largest != root) {
-    swap(v[largest], v[root]);
-    MaxHeapify(v, largest, end);
+    if(right <= end && v[right] > v[largest])
+      largest = right;
+    
+    if(largest != root) {
+      swap(v[largest], v[root]);
+      root = largest;
+      largest = -1;
+    }
+    else//largest == root, break.
+      break;
   }
 
 }
@@ -53,8 +58,8 @@ void heapSort(std::vector<int> &v) {
 }
 
 int main(void) {
-    //int arr = {5, 4, 3, 2, 1, 0};
-    //int arr = { 5, 5 };
+    //int arr[] = {5, 4, 3, 2, 1, 0};
+    //int arr[] = { 5, 5 };
     int arr[] = {60, 50, 2, 3, 2, 1, 0};
     std::vector<int> v(arr, arr+sizeof(arr)/sizeof(int));
 
